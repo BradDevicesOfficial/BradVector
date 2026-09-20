@@ -1,0 +1,17 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verilog:
+    name: RTL compile (Icarus)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install iverilog
+        run: sudo apt-get update && sudo apt-get install -y iverilog
+      - name: Compile the BradVector core
+        run: iverilog -g2012 -t null -o elab.out rtl/verilog/bradvector_core.v
