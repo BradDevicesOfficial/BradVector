@@ -17,6 +17,14 @@
 
 [![CI](https://github.com/BradDevicesOfficial/BradVector/actions/workflows/ci.yml/badge.svg)](https://github.com/BradDevicesOfficial/BradVector/actions/workflows/ci.yml)
 
+<p align="center">
+  <img alt="C" src="https://img.shields.io/badge/C-8A6D1F?style=for-the-badge">&nbsp;
+  <img alt="Assembly" src="https://img.shields.io/badge/Assembly-8A6D1F?style=for-the-badge">&nbsp;
+  <img alt="Verilog" src="https://img.shields.io/badge/Verilog-8A6D1F?style=for-the-badge">&nbsp;
+  <img alt="WebAssembly" src="https://img.shields.io/badge/WebAssembly-8A6D1F?style=for-the-badge">&nbsp;
+  <img alt="Linux" src="https://img.shields.io/badge/Linux-8A6D1F?style=for-the-badge">
+</p>
+
 # BradVector
 
 The Brad Devices GPU and accelerator instruction set architecture — the ISA behind every Torox GPU, and the shipped software platform that runs it.
