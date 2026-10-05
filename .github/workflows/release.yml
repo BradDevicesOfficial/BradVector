@@ -118,7 +118,10 @@ jobs:
           cp release-notes.md              "$STAGE/share/RELEASE-NOTES.md" 2>/dev/null || true
 
           tar -czf "$NAME.tar.gz" -C stage "$NAME"
-          (cd stage && zip -qr "$NAME.zip" "$NAME")
+          # Build the zip from inside stage/ so its internal layout matches the
+          # tarball (both extract to $NAME/...), but write it to the workspace
+          # root so the sha256sum below and the artifact glob both find it.
+          (cd stage && zip -qr "../$NAME.zip" "$NAME")
           sha256sum "$NAME.tar.gz" "$NAME.zip" > "$NAME.sha256"
           echo "asset_stem=$NAME" >> "$GITHUB_OUTPUT"
           ls -la "$NAME".*
