@@ -1,0 +1,25 @@
+; bvn_sigmul — out[i] = x[i] / (1 + exp2(x[i]*c))
+; Swish family: c = -1.702*log2(e) gives GELU (sigmoid approx);
+; c = -log2(e) gives SiLU.  exp(-z) is computed as exp2(-z*log2e).
+; args: S16=xbase S17=outbase S18=count S19=step(4) S20=one(1) S21=c
+.kernel sigmul
+    MOV S22, S16
+    MOV S23, S17
+    MOV S24, S18
+gloop:
+    LOAD S1, S22, 0
+    MUL S2, S1, S21
+    EXP2 S2, S2
+    ADDi S3, S2, 1
+    RCP S3, S3
+    MUL S3, S3, S1
+    STORE S23, S3, 0
+    IADD S22, S22, S19
+    IADD S23, S23, S19
+    ISUB S24, S24, S20
+    CMP P0, S24, S0
+    BR_COND@P0 gdone
+    BR gloop
+gdone:
+    EXIT
+.end

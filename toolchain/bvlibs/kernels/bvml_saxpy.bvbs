@@ -1,0 +1,24 @@
+; bvml_saxpy — out[i] = a*x[i] + y[i]
+; args: S16=xbase S17=ybase S18=outbase S19=a(float bits)
+;       S20=count S21=step(4) S22=one(1)
+.kernel saxpy
+    MOV S23, S16
+    MOV S24, S17
+    MOV S25, S18
+    MOV S26, S20
+loop:
+    LOAD S1, S23, 0
+    LOAD S2, S24, 0
+    MUL S3, S19, S1
+    ADD S3, S3, S2
+    STORE S25, S3, 0
+    IADD S23, S23, S21
+    IADD S24, S24, S21
+    IADD S25, S25, S21
+    ISUB S26, S26, S22
+    CMP P0, S26, S0
+    BR_COND@P0 done
+    BR loop
+done:
+    EXIT
+.end

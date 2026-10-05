@@ -1,0 +1,44 @@
+# saxpy_y — reference BVAS. Addresses/counters live in the integer domain
+# (MOV/IADD/ISUB on raw u32s) while the data flows through the float ALU.
+# Passing raws like 1..8 to MUL/ADD would hit denormals — the reference
+# convention keeps float data as float bits (see a = 0x40800000 = 4.0f).
+#
+#   args: S16=xbase  S17=ybase  S18=a(float bits)  S19=count
+#         S20=one  S21=step(4)
+#   result: y[i] = a*x[i] + y[i] over count elements; y base must not
+#   collide with x (use x base 1024, y base 2048 in the examples below).
+.kernel saxpy
+    MOV S22, S16             # xptr  (integer address)
+    MOV S23, S17             # yptr
+    MOV S24, S19             # rem = count
+    ADDi S25, S0, 0          # xval = 0.0f
+pre:
+    ADDi S25, S25, 1         # xval += 1.0f   (exact for small ints)
+    ADD S26, S25, S25        # yval = 2.0f * xval
+    STORE S22, S25, 0        # x[i] = i+1      (float 1.0f..count)
+    STORE S23, S26, 0        # y[i] = 2(i+1)
+    IADD S22, S22, S21       # xptr += 4
+    IADD S23, S23, S21       # yptr += 4
+    ISUB S24, S24, S20       # rem -= 1
+    CMP P0, S24, S0
+    BR_COND@P0 sax
+    BR pre
+sax:
+    MOV S22, S16
+    MOV S23, S17
+    MOV S24, S19
+loop:
+    LOAD S1, S22, 0          # x[i]  (float bits)
+    LOAD S2, S23, 0          # y[i]
+    MUL S3, S18, S1          # a * x[i]
+    ADD S3, S3, S2           # + y[i]
+    STORE S23, S3, 0         # y[i] = a*x[i] + y[i]
+    IADD S22, S22, S21
+    IADD S23, S23, S21
+    ISUB S24, S24, S20
+    CMP P0, S24, S0
+    BR_COND@P0 fin
+    BR loop
+fin:
+    EXIT
+.end

@@ -1,0 +1,27 @@
+# Fib — reference Voronoi demo: iterative fib(n) in straight .bvbs,
+# integer-seeded from launch args like the real ISA requires.
+#
+#   args: S16=f0  S17=f1  S18=n  S19=one  S20=zero
+#   fib(8) = 21, tail value lands in S1 of every lane.
+#   brake on the IADD (pc 4) to watch S3 climb.
+.kernel fib
+    MOV S1, S16              # f0
+    MOV S2, S17              # f1
+    MOV S21, S18             # n
+top:
+    IADD S3, S1, S2          # f2 = f0 + f1
+    MOV S1, S2               # f0 = f1
+    MOV S2, S3               # f1 = f2
+    ISUB S21, S21, S19       # n -= 1
+    CMP P0, S21, S20         # n == 0?
+    BR_COND@P0 fin
+    BR top
+fin:
+    EXIT
+.end
+
+.kernel dump
+    MOV S1, S16
+    MOV S2, S17
+    EXIT
+.end

@@ -1,0 +1,51 @@
+; bvn_softmax — out[i] = exp(x[i]-max) / sum(exp(x[j]-max))
+; Stable softmax: subtract the max before exponentiating.
+; args: S16=xbase S17=outbase S18=count S19=step(4) S20=one(1) S21=log2e
+.kernel softmax
+    MOV S22, S16
+    MOV S23, S17
+    MOV S24, S18
+    LOAD S25, S22, 0
+    MOV S26, S16
+    MOV S27, S18
+smaxloop:
+    LOAD S1, S26, 0
+    MAX S25, S1, S25
+    IADD S26, S26, S19
+    ISUB S27, S27, S20
+    CMP P0, S27, S0
+    BR_COND@P0 smaxdone
+    BR smaxloop
+smaxdone:
+    ADDi S26, S0, 0
+    MOV S22, S16
+    MOV S27, S18
+ssumloop:
+    LOAD S1, S22, 0
+    SUB S2, S1, S25
+    MUL S2, S2, S21
+    EXP2 S3, S2
+    ADD S26, S26, S3
+    STORE S23, S3, 0
+    IADD S22, S22, S19
+    IADD S23, S23, S19
+    ISUB S27, S27, S20
+    CMP P0, S27, S0
+    BR_COND@P0 ssumdone
+    BR ssumloop
+ssumdone:
+    RCP S21, S26
+    MOV S23, S17
+    MOV S27, S18
+sdivloop:
+    LOAD S1, S23, 0
+    MUL S2, S1, S21
+    STORE S23, S2, 0
+    IADD S23, S23, S19
+    ISUB S27, S27, S20
+    CMP P0, S27, S0
+    BR_COND@P0 sdivdone
+    BR sdivloop
+sdivdone:
+    EXIT
+.end

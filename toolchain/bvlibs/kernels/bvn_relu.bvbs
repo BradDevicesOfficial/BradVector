@@ -1,0 +1,20 @@
+; bvn_relu — out[i] = max(0, x[i])
+; args: S16=xbase S17=outbase S18=count S19=step(4) S20=one(1)
+.kernel relu
+    MOV S21, S16
+    MOV S22, S17
+    MOV S23, S18
+    ADDi S24, S0, 0
+rloop:
+    LOAD S1, S21, 0
+    MAX S2, S1, S24
+    STORE S22, S2, 0
+    IADD S21, S21, S19
+    IADD S22, S22, S19
+    ISUB S23, S23, S20
+    CMP P0, S23, S0
+    BR_COND@P0 rdone
+    BR rloop
+rdone:
+    EXIT
+.end

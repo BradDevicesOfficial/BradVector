@@ -1,0 +1,43 @@
+# Build output
+build/
+build-*/
+cmake-build-*/
+
+# Compiled objects and libraries
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+
+# Test and coverage output
+Testing/
+*.gcda
+*.gcno
+
+# Packaging scratch
+stage/
+dist/
+*.tar.gz
+*.zip
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Simulation output from the RTL job
+elab.out
+*.vcd
+
+# Editors
+.vscode/
+.idea/
+*.swp
+.DS_Store

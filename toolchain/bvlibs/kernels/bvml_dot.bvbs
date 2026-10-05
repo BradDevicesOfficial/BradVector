@@ -1,0 +1,22 @@
+; bvml_dot — out[0] = sum(x[i]*y[i])
+; args: S16=xbase S17=ybase S18=outbase S19=count
+;       S20=step(4) S21=one(1)
+.kernel dot
+    MOV S23, S16
+    MOV S24, S17
+    MOV S25, S19
+    ADDi S26, S0, 0
+dloop:
+    LOAD S1, S23, 0
+    LOAD S2, S24, 0
+    MAD S26, S1, S2
+    IADD S23, S23, S20
+    IADD S24, S24, S20
+    ISUB S25, S25, S21
+    CMP P0, S25, S0
+    BR_COND@P0 ddone
+    BR dloop
+ddone:
+    STORE S18, S26, 0
+    EXIT
+.end

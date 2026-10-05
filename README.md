@@ -71,6 +71,15 @@ docs/
   09-platform.md            BradFx / BradGfx / BradApex, the software platform
   10-toolchain.md           bradc, BVRT, bradgdb, BradTimeline, bradlib
   GLOSSARY.md               every term, one line each
+toolchain/
+  CMakeLists.txt            the build — project version is the release version
+  include/brad/             public headers (bradlib, bradsense, spmp, fabric, ...)
+  braddev/                  the one-binary dev CLI: cvt / run / dbg / timeline / test
+  bradvector/               the assembler (bradc) and the BVRT runtime
+  asm/ brad-cvt/ drivers/   assembler, converter, and reference driver implementations
+  bvlibs/                   BVML / BVN / BVComm reference libraries and kernels
+  tests/                    the ctest suite — 15 tests, all of them receipts
+  rtl/                      reference RTL exercised by the toolchain tests
 ```
 
 ## The ISA, briefly
@@ -107,6 +116,31 @@ The runtime (`BVRT`) executes `.bvbc` everywhere, including in the browser via t
 `.brsh` native emission is defined but not yet implemented by the reference assembler.
 
 See [docs/10-toolchain.md](docs/10-toolchain.md).
+
+### Build it
+
+```sh
+cmake -S toolchain -B build -DCMAKE_BUILD_TYPE=Release -DBRAD_BUILD_BVLIB=ON
+cmake --build build -j
+ctest --test-dir build --output-on-failure
+```
+
+### Prebuilt binaries
+
+Releases carry `braddev` and `bradc` for linux-x86_64, linux-aarch64 and
+macos-arm64, each with a `.sha256`. See [Releases](../../releases).
+
+> A release is only cut if the full ctest suite is green, so a downloadable
+> binary and a passing test run are the same event. `braddev version` reports
+> the version from `project(... VERSION ...)`, and CI fails if the binary and the
+> build system ever disagree about it.
+
+Run it:
+
+```sh
+./build/braddev/braddev version
+./build/braddev/braddev test        # self-test the kit and drivers
+```
 
 ## The RTL
 

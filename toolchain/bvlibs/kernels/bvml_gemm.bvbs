@@ -1,0 +1,27 @@
+; bvml_gemm — C[r][c] = alpha * sum_over_k(A[r][k]*B[k][c]) + beta*C[r][c]
+; Per-element launch (row-major A[M,K], B[K,N], C[M,N]).
+; args: S16=Arow S17=Bcol S18=outptr S19=count(K) S20=stepA(4)
+;       S21=stepB(N*4) S22=one(1) S23=alpha(bits) S24=beta(bits)
+.kernel gemm
+    MOV S1, S0
+    MOV S2, S16
+    MOV S3, S17
+    MOV S4, S19
+gloop:
+    CMP P0, S4, S0
+    BR_COND@P0 gdone
+    LOAD S5, S2, 0
+    LOAD S6, S3, 0
+    MAD S1, S5, S6
+    IADD S2, S2, S20
+    IADD S3, S3, S21
+    ISUB S4, S4, S22
+    BR gloop
+gdone:
+    MUL S1, S1, S23
+    LOAD S7, S18, 0
+    MUL S10, S24, S7
+    ADD S1, S1, S10
+    STORE S18, S1, 0
+    EXIT
+.end

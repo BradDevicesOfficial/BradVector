@@ -1,0 +1,20 @@
+; bvn_affine — out[i] = x[i]*scale + bias
+; args: S16=xbase S17=outbase S18=scale S19=bias S20=count S21=step(4) S22=one(1)
+.kernel affine
+    MOV S23, S16
+    MOV S24, S17
+    MOV S25, S20
+aloop:
+    LOAD S1, S23, 0
+    MUL S2, S1, S18
+    ADD S2, S2, S19
+    STORE S24, S2, 0
+    IADD S23, S23, S21
+    IADD S24, S24, S21
+    ISUB S25, S25, S22
+    CMP P0, S25, S0
+    BR_COND@P0 adone
+    BR aloop
+adone:
+    EXIT
+.end

@@ -1,0 +1,186 @@
+name: Release
+
+# Releases are cut from tags. The tag is the human-facing name, but the
+# authoritative version is project(... VERSION ...) in toolchain/CMakeLists.txt.
+# The build gate below refuses to publish if the two disagree, so the tag and
+# the binary can never drift apart.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing tag to (re)publish a release for, e.g. v0.1.0'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  verify-version:
+    name: tag matches CMake version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        name: Read project version and compare with the tag
+        run: |
+          set -euo pipefail
+          CMAKE_VER="$(sed -nE 's/.*project\([^)]*VERSION[[:space:]]+([0-9]+\.[0-9]+\.[0-9]+).*/\1/p' toolchain/CMakeLists.txt | head -1)"
+          if [ -z "$CMAKE_VER" ]; then
+            echo "::error::could not read VERSION from toolchain/CMakeLists.txt"; exit 1
+          fi
+          TAG="${GITHUB_REF_NAME}"
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then TAG="${{ inputs.tag }}"; fi
+          case "$TAG" in v*) WANT="${TAG#v}";; *) echo "::error::tag must look like v0.1.0, got '$TAG'"; exit 1;; esac
+          echo "CMake version: $CMAKE_VER"
+          echo "Tag version:   $WANT"
+          if [ "$CMAKE_VER" != "$WANT" ]; then
+            echo "::error::tag v$WANT does not match toolchain/CMakeLists.txt VERSION $CMAKE_VER"
+            echo "::error::fix one or the other, otherwise the published binary lies about its own version"
+            exit 1
+          fi
+          echo "version=$CMAKE_VER" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: ${{ matrix.name }}
+    needs: verify-version
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: linux-x86_64
+          - os: ubuntu-24.04-arm
+            name: linux-aarch64
+          - os: macos-latest
+            name: macos-arm64
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake ninja-build
+          cmake --version
+
+      - name: Configure
+        run: >
+          cmake -S toolchain -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DBRAD_BUILD_DRIVERS=ON
+          -DBRAD_BUILD_BVECTOR=ON
+          -DBRAD_BUILD_BVLIB=ON
+          -DBRAD_BUILD_TESTS=ON
+
+      - name: Build
+        run: cmake --build build -j
+
+      # A release is a receipt. If the suite is not green, nothing is published.
+      - name: Test (gate)
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Collect the version the binaries actually report
+        id: bins
+        run: |
+          set -euo pipefail
+          ./build/braddev/braddev version | tee braddev-version.txt
+          {
+            echo "### braddev reports"
+            echo '```'
+            cat braddev-version.txt
+            echo '```'
+          } > version-snippet.md
+
+      - name: Package
+        id: pkg
+        run: |
+          set -euo pipefail
+          VER="${{ needs.verify-version.outputs.version }}"
+          NAME="bradvector-toolchain-$VER-${{ matrix.name }}"
+          STAGE="stage/$NAME"
+          mkdir -p "$STAGE/bin" "$STAGE/include" "$STAGE/share"
+
+          cp build/braddev/braddev        "$STAGE/bin/"
+          cp build/bradvector/bradc-cli   "$STAGE/bin/bradc"
+          cp -r toolchain/include/brad    "$STAGE/include/"
+          cp toolchain/README.md           "$STAGE/share/README.md"
+          cp LICENSE                       "$STAGE/share/LICENSE"
+          cp release-notes.md              "$STAGE/share/RELEASE-NOTES.md" 2>/dev/null || true
+
+          tar -czf "$NAME.tar.gz" -C stage "$NAME"
+          (cd stage && zip -qr "$NAME.zip" "$NAME")
+          sha256sum "$NAME.tar.gz" "$NAME.zip" > "$NAME.sha256"
+          echo "asset_stem=$NAME" >> "$GITHUB_OUTPUT"
+          ls -la "$NAME".*
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pkg-${{ matrix.name }}
+          path: |
+            bradvector-toolchain-*.tar.gz
+            bradvector-toolchain-*.zip
+            bradvector-toolchain-*.sha256
+
+  release:
+    name: publish release
+    needs: [verify-version, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Assemble notes
+        run: |
+          set -euo pipefail
+          VER="${{ needs.verify-version.outputs.version }}"
+          {
+            echo "# BradVector Toolchain $VER"
+            echo
+            echo "The Brad Devices reference toolchain: \`bradc\` (assembler), \`BVRT\` (interpreter) and \`braddev\` (assemble, run, debug, profile)."
+            echo
+            echo "## Verify"
+            echo
+            echo "Every asset ships a \`.sha256\`. Every binary here was produced by a green test run — the release job refuses to publish if ctest fails, so the tests are the receipt."
+            echo
+            echo '```'
+            cat artifacts/bradvector-toolchain-*.sha256
+            echo '```'
+            echo
+            echo "## Build from source"
+            echo
+            echo '```sh'
+            echo "git clone https://github.com/BradDevicesOfficial/BradVector.git"
+            echo "cd BradVector"
+            echo "cmake -S toolchain -B build -DCMAKE_BUILD_TYPE=Release -DBRAD_BUILD_BVLIB=ON"
+            echo "cmake --build build -j"
+            echo "ctest --test-dir build --output-on-failure"
+            echo '```'
+            echo
+            echo "## Status"
+            echo
+            echo "This is a **reference** toolchain. It is real, tested and runnable, and it is what the \`SHIPPED\` tag means in the docs — not a supported product with an SLA. See \`BRAND.md\` and the site for what is designed versus what runs."
+          } > release-notes.md
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          # A re-dispatch of an existing tag replaces its assets instead of failing.
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release upload "$TAG" artifacts/* --clobber
+            echo "updated existing release $TAG"
+          else
+            gh release create "$TAG" artifacts/* \
+              --title "$TAG" \
+              --notes-file release-notes.md
+            echo "created release $TAG"
+          fi
