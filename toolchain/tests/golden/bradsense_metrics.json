@@ -1,0 +1,17 @@
+{
+  "tool": "bradsense-metrics",
+  "milestone": "M2",
+  "corpus": "procedural-translate-band",
+  "ground_truth": "64x64",
+  "frames": 4,
+  "rows": [
+    { "mode": "quality", "input": "32x32", "psnr_db": 18.0147, "ssim_mean": 0.618675, "ssim_worst": 0.418472, "scintillation": 0.000000, "frames": 4 },
+    { "mode": "balanced", "input": "32x32", "psnr_db": 23.0691, "ssim_mean": 0.703922, "ssim_worst": 0.632052, "scintillation": 0.000000, "frames": 4 },
+    { "mode": "performance", "input": "32x32", "psnr_db": 22.6454, "ssim_mean": 0.642439, "ssim_worst": 0.590944, "scintillation": 0.000000, "frames": 4 },
+    { "mode": "quality", "input": "16x16", "psnr_db": 17.5542, "ssim_mean": 0.322540, "ssim_worst": 0.189235, "scintillation": 0.000000, "frames": 4 },
+    { "mode": "balanced", "input": "16x16", "psnr_db": 20.0974, "ssim_mean": 0.359266, "ssim_worst": 0.286865, "scintillation": 0.000000, "frames": 4 },
+    { "mode": "performance", "input": "16x16", "psnr_db": 20.0874, "ssim_mean": 0.321392, "ssim_worst": 0.270994, "scintillation": 0.000000, "frames": 4 },
+    { "mode": "quality", "input": "8x8", "psnr_db": 19.1428, "ssim_mean": 0.187492, "ssim_worst": 0.159040, "scintillation": 0.000000, "frames": 4 },
+    { "mode": "balanced", "input": "8x8", "psnr_db": 19.1428, "ssim_mean": 0.187492, "ssim_worst": 0.159040, "scintillation": 0.000000, "frames": 4 }
+  ]
+}

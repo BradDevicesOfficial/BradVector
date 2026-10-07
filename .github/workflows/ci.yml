@@ -49,3 +49,24 @@ jobs:
             *"v$CMAKE_VER"*) echo "ok: the binary agrees with the build system" ;;
             *) echo "::error::binary reports '$REPORTED' but CMake declares $CMAKE_VER"; exit 1 ;;
           esac
+
+  bradsense-metrics:
+    # M2 gate: a renderer regression should be distinguishable from a compile
+    # break, so the metrics check is its own job and diffs against the golden.
+    name: BradSense metrics (golden diff)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install build tools
+        run: sudo apt-get update && sudo apt-get install -y cmake ninja-build
+      - name: Configure
+        run: >
+          cmake -S toolchain -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DBRAD_BUILD_BVECTOR=ON
+          -DBRAD_BUILD_BVLIB=ON
+          -DBRAD_BUILD_TESTS=ON
+      - name: Build
+        run: cmake --build build -j
+      - name: ctest
+        run: ctest --test-dir build --output-on-failure

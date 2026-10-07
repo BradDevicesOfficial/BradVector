@@ -55,3 +55,15 @@ if(BRAD_BUILD_BVECTOR)
     target_link_libraries(test_bradlib m)
     add_test(NAME bradlib COMMAND test_bradlib)
 endif()
+
+
+# M2 -- BradSense metrics. Golden path is injected because this same harness is
+# built from two layouts (src/tests internally, toolchain/tests here).
+add_executable(test_bradsense_metrics test_bradsense_metrics.c)
+target_link_libraries(test_bradsense_metrics brad-drivers m)
+target_compile_definitions(test_bradsense_metrics PRIVATE
+    BRADSENSE_GOLDEN="${CMAKE_CURRENT_SOURCE_DIR}/golden/bradsense_metrics.json")
+add_test(NAME bradsense_metrics COMMAND test_bradsense_metrics)
+add_test(NAME bradsense_metrics_emit COMMAND test_bradsense_metrics --emit)
+set_tests_properties(bradsense_metrics_emit PROPERTIES
+                     PASS_REGULAR_EXPRESSION "\"psnr_db\"")
