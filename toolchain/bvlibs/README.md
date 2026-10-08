@@ -14,7 +14,7 @@ the shipped reference stack (`bradc` → `.bvbc` → `BVRT` → `bradlib`) plus 
 >
 > **Published.** The public boundary of this suite — the BVML/BVN API headers,
 > the `.bvbs` kernels, the shared tests, and an independent host-side
-> reference implementation — is shipped as `BradDevicesOfficial/BVLibs` (MIT)
+> reference implementation — is shipped as `Brad-Devices/BVLibs` (MIT)
 > and runs in the brand site's in-browser wasm. The ISA-level reference
 > runtime (`bradc`, `BVRT`) and the fabric-bound `BVComm` stay in this private
 > repo.

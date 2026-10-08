@@ -165,7 +165,7 @@ jobs:
             echo "## Build from source"
             echo
             echo '```sh'
-            echo "git clone https://github.com/BradDevicesOfficial/BradVector.git"
+            echo "git clone https://github.com/Brad-Devices/BradVector.git"
             echo "cd BradVector"
             echo "cmake -S toolchain -B build -DCMAKE_BUILD_TYPE=Release -DBRAD_BUILD_BVLIB=ON"
             echo "cmake --build build -j"

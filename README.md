@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/BradDevicesOfficial/brad-devices/main/assets/brad-devices-wordmark/svg/brad-devices-wordmark-white.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/BradDevicesOfficial/brad-devices/main/assets/brad-devices-wordmark/svg/brad-devices-wordmark-black.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Brad-Devices/brad-devices/main/assets/brad-devices-wordmark/svg/brad-devices-wordmark-white.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Brad-Devices/brad-devices/main/assets/brad-devices-wordmark/svg/brad-devices-wordmark-black.svg">
     <img alt="BRAD DEVICES" width="360">
   </picture>
 </p>
@@ -9,13 +9,13 @@
 <p align="center">
   <em>of</em>&nbsp;&nbsp;
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/BradDevicesOfficial/brad-devices/main/assets/brad-verse-wordmark/svg/brad-verse-wordmark-flat-dark.svg">
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/BradDevicesOfficial/brad-devices/main/assets/brad-verse-wordmark/svg/brad-verse-wordmark-flat-light.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Brad-Devices/brad-devices/main/assets/brad-verse-wordmark/svg/brad-verse-wordmark-flat-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/Brad-Devices/brad-devices/main/assets/brad-verse-wordmark/svg/brad-verse-wordmark-flat-light.svg">
     <img alt="BRADVERSE" width="190">
   </picture>
 </p>
 
-[![CI](https://github.com/BradDevicesOfficial/BradVector/actions/workflows/ci.yml/badge.svg)](https://github.com/BradDevicesOfficial/BradVector/actions/workflows/ci.yml)
+[![CI](https://github.com/Brad-Devices/BradVector/actions/workflows/ci.yml/badge.svg)](https://github.com/Brad-Devices/BradVector/actions/workflows/ci.yml)
 
 <p align="center">
   <img alt="C" src="https://img.shields.io/badge/C-8A6D1F?style=for-the-badge">&nbsp;
@@ -40,7 +40,7 @@ and the engine that proves it fits on real fabric.
 
 BradVector is the **GPU/accelerator ISA**. It is deliberately separate from **BradISA**, the CPU ISA:
 
-| | [BradISA](https://github.com/BradDevicesOfficial/BradISA) | BradVector |
+| | [BradISA](https://github.com/Brad-Devices/BradISA) | BradVector |
 |---|---|---|
 | Runs on | CPU cores (Falcon, Kestrel, Phoenix) | Torox GPU dies |
 | Model | 32-bit scalar RISC | dual-issue SIMT |
@@ -151,10 +151,10 @@ This is a reference instance, not the production shader core; production parts a
 ## Links
 
 - **Documentation:** [docs/00-index.md](docs/00-index.md) — the full reference tree
-- **BradISA (CPU ISA):** [github.com/BradDevicesOfficial/BradISA](https://github.com/BradDevicesOfficial/BradISA)
+- **BradISA (CPU ISA):** [github.com/Brad-Devices/BradISA](https://github.com/Brad-Devices/BradISA)
 - **Site:** [brad-devices.vercel.app](https://brad-devices.vercel.app)
 - **Contact:** brad.devices.official@gmail.com
-- **GitHub:** [BradDevicesOfficial](https://github.com/BradDevicesOfficial)
+- **GitHub:** [Brad-Devices](https://github.com/Brad-Devices)
 
 ---
 
